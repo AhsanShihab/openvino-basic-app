@@ -1,5 +1,5 @@
 import cv2
-from inference2 import preprocessing, load_to_IE, sync_inference, async_inference, get_input_shape, get_async_output
+from inference import preprocessing, load_to_IE, sync_inference, async_inference, get_input_shape, get_async_output
 
 def main():
     model = "model/intel/face-detection-adas-0001/INT8/face-detection-adas-0001.xml"    
