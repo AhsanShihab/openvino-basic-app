@@ -1,28 +1,26 @@
 import cv2
-from inference import preprocessing, load_to_IE, sync_inference, async_inference, get_input_shape, get_async_output
+from inference import preprocessing, load_model, sync_inference, async_inference, get_input_shape, get_async_output
 
 def main():
-    model = "model/intel/face-detection-adas-0001/INT8/face-detection-adas-0001.xml"    
+    model = "model/intel/face-detection-adas-0001/FP32/face-detection-adas-0001.xml"    
     image = "image.jpg"
     
     image = cv2.imread(image)
-    exec_net = load_to_IE(model)
+    exec_net = load_model(model)
     
-    n, c, h, w = get_input_shape(model)
+    n, c, h, w = get_input_shape(exec_net)
     preprocessed_image = preprocessing(image, h, w)
     
-    result = sync_inference(exec_net, image = preprocessed_image)
-    #print(result.keys())
-    result = result['detection_out']
-    output = output_processing(result, image)
-    cv2.imwrite("output.png", output)
+    # sync
+    result_sync = sync_inference(exec_net, image = preprocessed_image)
+    output_sync = output_processing(result_sync, image)
+    cv2.imwrite("output_sync.png", output_sync)
     
     # async
-    async_net = async_inference(exec_net, image = preprocessed_image)
-    async_result = get_async_output(async_net, request_id=0)
-    
-    async_output = output_processing(async_result, image)
-    cv2.imwrite("async output.png", async_output)
+    async_handler = async_inference(exec_net, image = preprocessed_image)
+    result_async = get_async_output(async_handler)
+    output_async = output_processing(result_async, image)
+    cv2.imwrite("output_async.png", output_async)
 
 def output_processing(result, image, threshold = 0.5):    
     color = (0,0,255)
